@@ -43,7 +43,7 @@ los mismos.
 
 # Construccion de modelos
 
-def newCatalog(tipo_representacion):
+def newCatalog():
     """
     Inicializa el catálogo de videos. Crea una lista vacia para guardar
     todos los videos. Adicionalmente crea una lista vacia para guardar el título, el canal, 
@@ -55,30 +55,17 @@ def newCatalog(tipo_representacion):
                'categories':None,
                'countries':None,
                'tags': None}
-    if tipo_representacion == 2:
 
-        catalog['videos'] = lt.newList()
+    catalog['videos'] = lt.newList()
 
-        catalog['channels'] = lt.newList('LINKED_LIST',
-                                        cmpfunction = comparechannels)
-        catalog['categories'] = lt.newList('LINKED_LIST',
-                                    cmpfunction = comparecategories)
-        catalog['countries'] = lt.newList('LINKED_LIST',
-                                    cmpfunction = comparecountries)
-        catalog['tags'] = lt.newList('LINKED_LIST',
-                                    cmpfunction=comparetags)
-
-    else:
-        catalog['videos'] = lt.newList()
-
-        catalog['channels'] = lt.newList('ARRAY_LIST',
-                                        cmpfunction = comparechannels)
-        catalog['categories'] = lt.newList('ARRAY_LIST',
-                                    cmpfunction = comparecategories)
-        catalog['countries'] = lt.newList('ARRAY_LIST',
-                                    cmpfunction = comparecountries)
-        catalog['tags'] = lt.newList('ARRAY_LIST',
-                                    cmpfunction=comparetags)
+    catalog['channels'] = lt.newList('ARRAY_LIST',
+                                    cmpfunction = comparechannels)
+    catalog['categories'] = lt.newList('ARRAY_LIST',
+                                cmpfunction = comparecategories)
+    catalog['countries'] = lt.newList('ARRAY_LIST',
+                                cmpfunction = comparecountries)
+    catalog['tags'] = lt.newList('ARRAY_LIST',
+                                cmpfunction=comparetags)
 
 
     return catalog
@@ -225,34 +212,140 @@ def comparecategories(categoryname, category):
 
 def cmpVideosByViews(video1, video2):
     """ 
-     Devuelve verdadero (True) si los 'views' de video1 son menores que los del video2 
+     Devuelve verdadero (True) si los 'views' de video1 son mayores que los del video2 
      Args: 
      video1: informacion del primer video que incluye su valor 'views' 
      video2: informacion del segundo video que incluye su valor 'views' """
 
-    if video1['views'] < video2['views']:
+    if video1['views'] > video2['views']:
         return True
     return False
 
 # Funciones de ordenamiento
 
-def sortVideos(catalog, size, tipo_ordenamiento): 
+def sortVideos1(catalog, size, tipo_ordenamiento):
     sub_list = lt.subList(catalog['videos'], 0, size) 
-    sub_list = sub_list.copy() 
-    start_time = time.process_time() 
-    if tipo_ordenamiento == 1:
-        sorted_list = ss.sort(sub_list, cmpVideosByViews) 
-    elif tipo_ordenamiento == 2:
-        sorted_list = ins.sort(sub_list, cmpVideosByViews)
-    elif tipo_ordenamiento == 3:
-        sorted_list = sa.sort(sub_list, cmpVideosByViews)
-    elif tipo_ordenamiento == 4:
-        sorted_list = mg.sort(sub_list, cmpVideosByViews)
-    else:
-        sorted_list = qs.sort(sub_list, cmpVideosByViews)
+    #ub_list = sub_list.copy() 
+    sorted_list = mg.sort(catalog, cmpVideosByViews)
+    return  sorted_list
 
-    stop_time = time.process_time() 
-    elapsed_time_mseg = (stop_time - start_time)*1000 
-    return elapsed_time_mseg, sorted_list
+def sortVideos(catalog, n, country, category):
+
+    index_category = 1
+
+    while category.lower() not in lt.getElement(catalog["categories"], index_category)["name"].lower() :
+        index_category += 1
+
+    id_category = lt.getElement(catalog["categories"],index_category)["id"]
+
+    por_pais= mg.sort (catalog ["videos"], cmpVideosByCountry)
+    index_inicio = 1
+
+    while country not in lt.getElement(por_pais, index_inicio)["country"] :
+        index_inicio += 1
+
+    index_fin = index_inicio
+
+    while country in lt.getElement(por_pais, index_fin)["country"] :
+        index_fin += 1
+
+    sub_list = lt.subList(por_pais, index_inicio, index_fin-index_inicio)
+    
+    por_categoria= qs.sort (sub_list, cmpVideosByCategory)
+    index_inicio = 1
+
+    while lt.getElement(por_categoria, index_inicio)["category_id"] != id_category :
+        index_inicio += 1
+
+    index_fin = index_inicio
+
+    while lt.getElement(por_categoria, index_fin)["category_id"] == id_category  :
+        index_fin += 1
+
+    sub_list = lt.subList(por_categoria, index_inicio, index_fin-index_inicio)
+
+    por_vistas = qs.sort(sub_list, cmpVideosByViews)
+
+    sub_list = lt.subList(por_vistas, 1, n)
+
+    #print("Numero final: " + str(lt.size(sub_list)))
+
+    #f = 1
+    #while f <= 9:
+    #for video in lt.iterator(sub_list):
+        #print  ( 'Video: ' + lt.getElement(por_vistas, f)['title'] + ' Views: ' + str(lt.getElement(por_vistas, f)['views']))
+        #f += 1
+
+    return sub_list
+
+def getTrendingVideoByCountry(catalog, country):
+    por_pais= mg.sort (catalog ["videos"], cmpVideosByCountry)
+
+    index_inicio = 1
+
+    while country not in lt.getElement(por_pais, index_inicio)["country"] :
+        index_inicio += 1
+
+    index_fin = index_inicio
+
+    while country == lt.getElement(por_pais, index_fin)["country"] :
+        index_fin += 1
+        if index_fin > lt.size(por_pais):
+            break
+    
+    sub_list = lt.subList(por_pais, index_inicio, index_fin-index_inicio)
 
     
+
+    por_nombre = mg.sort (sub_list, cmpVideosByName)
+
+    name = ""
+    max_index = 0
+    max_count = 0
+    count = 0
+    index = 0
+    i = 1
+
+    while i <= lt.size(por_nombre):
+        if name.lower() == lt.getElement(por_nombre, i)["title"]:
+            count += 1
+        else:
+            name = lt.getElement(por_nombre, i)["title"]
+            index = i
+            count = 1
+        
+        if count > max_count:
+            max_index = index
+            max_count = count
+        i += 1
+
+    return [lt.getElement(por_nombre, max_index), max_count]
+        
+
+
+def cmpVideosByCountry(video1, video2):
+    """ 
+     Devuelve verdadero (True) si los 'views' de video1 son mayores que los del video2 
+     Args: 
+     video1: informacion del primer video que incluye su valor 'views' 
+     video2: informacion del segundo video que incluye su valor 'views' """
+
+    if video1['country'].lower() > video2['country'].lower():
+        return True
+    return False
+
+def cmpVideosByCategory(video1, video2):
+    """ 
+     Devuelve verdadero (True) si los 'views' de video1 son mayores que los del video2 
+     Args: 
+     video1: informacion del primer video que incluye su valor 'views' 
+     video2: informacion del segundo video que incluye su valor 'views' """
+
+    if video1['category_id'] > video2['category_id']:
+        return True
+    return False  
+
+def cmpVideosByName(video1, video2):
+    if video1['title'].lower() > video2['title'].lower():
+        return True
+    return False

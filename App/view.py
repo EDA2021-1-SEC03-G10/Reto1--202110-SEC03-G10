@@ -1,4 +1,5 @@
-﻿"""
+﻿
+"""
  * Copyright 2020, Departamento de sistemas y Computación, Universidad
  * de Los Andes
  *
@@ -47,28 +48,35 @@ def printMenu():
     print("5- Consultar videos con más likes en un pais")
     print("0- Salir")
 
-def initCatalog(tipo_representacion):
+def initCatalog():
     """
     Inicializa el catalogo de videos
     """
-    return controller.initCatalog(tipo_representacion)
+    return controller.initCatalog()
 
-def printResults(ord_videos, sample=3): 
+def printResults(ord_videos): 
     size = lt.size(ord_videos) 
-    if size > sample: 
-        print("Los primeros ", sample, " videos ordenados son:") 
-        i=0 
-        while i <= sample: 
-            video = lt.getElement(ord_videos,i) 
-            print('Trending_date: ' + video['trending_date'] + ' Title: ' + video['title'] + ' Channel_title: ' + video['channel_title'] + 'publish_time: ' + video['publish_time'] +
-                    'views: '+ video['views'] + 'likes: '+ video['likes'] + 'dislikes: '+ video['dislikes']) 
-            i+=1
+    #if size > sample: 
+        #print("Los primeros ", sample, " videos ordenados son:") 
+    i=1 
+    while i <= size: 
+        video = lt.getElement(ord_videos,i) 
+        print('Trending_date: ' + video['trending_date'] + ' Title: ' + video['title'] + ' Channel_title: ' + video['channel_title'] + 'publish_time: ' + video['publish_time'] +
+                'views: '+ video['views'] + 'likes: '+ video['likes'] + 'dislikes: '+ video['dislikes']) 
+        i+=1
 
 def loadData(catalog):
     """
     Carga los videos en la estructura de datos
     """
     controller.loadData(catalog)
+
+    video = lt.firstElement(catalog['videos'])
+    print( 'Title: ' + video['title'] + ' Channel_title: ' + video['channel_title'] + ' Trending_date: ' + video['trending_date'] + 
+    ' country: ' + video['country'] + ' views: '+ video['views'] + ' likes: '+ video['likes'] + ' dislikes: '+ video['dislikes'])
+
+    for category in lt.iterator(catalog['categories']):
+        print  ( 'id: ' + str(category['id']) + ' name: ' + category['name'])
 
 catalog = None
 
@@ -79,31 +87,29 @@ while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
-        print("1- ARRAY_LIST")
-        print("2- LINKED_LIST")
-        tipo_representacion = input ("Seleccione el tipo de representación deseado para la lista\n")
         print("Cargando información de los archivos ....")
-        catalog = initCatalog(tipo_representacion)
+        catalog = initCatalog()
         loadData(catalog)
         print('Videos cargados: ' + str(lt.size(catalog['videos'])))
         print('Categorias cargadas: ' + str(lt.size(catalog['categories'])))
 
     elif int(inputs[0]) == 2: 
-        size = int(input("Indique tamaño de la muestra: ")) 
+        size = int(input("Indique el número de videos que quiere listar: ")) 
+        pais = input ("Ingrese el país para el cual desea realizar la consulta: ")
+        categoria = input ("Ingrese la categoría que quiere consultar: ")
         if size > lt.size(catalog['videos']):
             print ("el tamaño de muestra solicitado excede la cantidad de datos de videos cargados")
         else:
-            print("1- Selection_sort")
-            print("2- Insertion_sort")
-            print("3- Shell_sort")
-            print("4- Merge_sort")
-            print("5- Quick_sort")
-            tipo_ordenamiento = input ("Seleccione el tipo de algoritmo de ordenamiento que desea\n")
-            result = controller.sortVideos(catalog, int(size), tipo_ordenamiento) 
-            print("Para la muestra de", size, " elementos, el tiempo (mseg) es: ", str(result[0])) 
-            printResults(result[1],size)
+            result = controller.sortVideos(catalog, size, pais, categoria) 
 
-        pass
+        printResults(result)
+
+    elif int(inputs[0]) == 3:
+        country = input ("Ingrese el país para el cual desea realizar la consulta: ")
+        [result, count] = controller.getTrendingVideoByCountry(catalog, country)
+
+        video = result
+        print( 'Title: ' + video['title'] + ' Channel_title: ' + video['channel_title'] + ' Country: ' + video['country'] + ' Días: '+ str(count))
 
     else:
         sys.exit(0)
