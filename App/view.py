@@ -111,6 +111,21 @@ while True:
         video = result
         print( 'Title: ' + video['title'] + ' Channel_title: ' + video['channel_title'] + ' Country: ' + video['country'] + ' Días: '+ str(count))
 
+    elif int(inputs[0]) == 4:
+        category = input("Ingrese el id de la categoria para la cual desea realizar la consulta: ")
+        result = controller.getTrendingVideoByCategory(catalog, category)
+        print(result)
+    elif int(inputs[0]) == 5:
+        country = input("Ingrese el nombre del país: ")
+        tag= input("Ingrese la etiqueta del video: ")
+        result=controller.getTrendingVideoByLikes(catalog,country,tag)
+        print("Video1 \n")
+        print("Nombre: " , result[0][0], " Nombre del canal: " , result[0][1], " Tiempo de publicación: ", result[0][2], " Reproducciones: ", result[0][3], " Likes: ", result[0][4], " Dislikes: ", result[0][5])
+        print("Video2 \n")
+        print("Nombre: " , result[1][0], " Nombre del canal: " , result[1][1], " Tiempo de publicación: ", result[1][2], " Reproducciones: ", result[1][3], " Likes: ", result[1][4], " Dislikes: ", result[1][5])
+        print("Video3 \n")
+        print("Nombre: " , result[2][0], " Nombre del canal: " , result[2][1], " Tiempo de publicación: ", result[2][2], " Reproducciones: ", result[2][3], " Likes: ", result[2][4], " Dislikes: ", result[2][5])
+
     else:
         sys.exit(0)
 sys.exit(0)

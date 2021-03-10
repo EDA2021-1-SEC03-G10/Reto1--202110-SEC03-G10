@@ -322,9 +322,97 @@ def getTrendingVideoByCountry(catalog, country):
         i += 1
 
     return [lt.getElement(por_nombre, max_index), max_count]
+
+
+
+def getTrendingVideoByCategory(catalog, category):
+
+    index_category = 1
+
+    while category.lower() not in lt.getElement(catalog["categories"], index_category)["id"].lower() :
+        index_category += 1
+
+    id_category = lt.getElement(catalog["categories"],index_category)["id"]
+    por_categoria= qs.sort (catalog["videos"], cmpVideosByCategory)
+    index_inicio = 1
+
+    while lt.getElement(por_categoria, index_inicio)["category_id"] != id_category :
+        index_inicio += 1
+
+    index_fin = index_inicio
+
+    while lt.getElement(por_categoria, index_fin)["category_id"] == id_category  :
+        index_fin += 1
+
+    sub_list = lt.subList(por_categoria, index_inicio, index_fin-index_inicio)
+
+    por_nombre = mg.sort (sub_list, cmpVideosByName)
+
+    name = ""
+    cannel=""
+    max_index = 0
+    max_count = 0
+    count = 0
+    index = 0
+    i = 1
+    id=0
+    while i <= lt.size(por_nombre):
+        if name.lower() == lt.getElement(por_nombre, i)["title"]:
+            count += 1
+        else:
+           
+            index = i
+            count = 1
+        
+        if count > max_count:
+            max_index = index
+            max_count = count
+            name = lt.getElement(por_nombre["title"], i)["title"]
+            cannel=lt.getElement(por_nombre["channel_title"],i)["channel"]
+            id=int(lt.getElement(por_nombre["category_id"],i)["category_id"])
+
+        i += 1
+    result= {"Titulo: ":name , "Canal: ":cannel, "Id: ":id, "Dias tendencia: ": max_count}
+    return result
         
 
+    
+def getTrendingVideoByLikes(catalog,country,tag):
 
+    por_pais= mg.sort (catalog ["videos"], cmpVideosByCountry)
+    index_inicio=1
+
+    while country not in lt.getElement(por_pais, index_inicio)["country"] :
+        index_inicio +=1
+
+    index_fin = index_inicio
+
+    while country in lt.getElement(por_pais, index_fin)["country"] :
+        index_fin += 1
+
+    sub_list = lt.subList(por_pais, index_inicio, index_fin-index_inicio)
+    
+    por_tag= qs.sort (sub_list, cmpVideosByTag)
+    index_inicio = 1
+    
+    while lt.getElement(por_tag, index_inicio)["tags"] != tag :
+        index_inicio += 1
+
+    index_fin = index_inicio
+
+    while lt.getElement(por_tag, index_fin)["tags"] == tag :
+        index_fin += 1
+
+    sub_list = lt.subList(por_tag, index_inicio, index_fin-index_inicio)
+
+    por_likes = qs.sort(sub_list, cmpVideosByLikes)
+
+    video1=[lt.getElement(por_likes["title"],1)["title"],lt.getElement(por_likes["cannel_title"],1)["cannel_title"],lt.getElement(por_likes["publish_time"],1)["publish_time"],lt.getElement(por_likes["views"],1)["views"],lt.getElement(por_likes["likes"],1)["likes"],lt.getElement(por_likes["dislikes"],1)["dislikes"],lt.getElement(por_likes["tags"],1)["tags"]]
+    video2=[lt.getElement(por_likes["title"],2)["title"],lt.getElement(por_likes["cannel_title"],2)["cannel_title"],lt.getElement(por_likes["publish_time"],2)["publish_time"],lt.getElement(por_likes["views"],2)["views"],lt.getElement(por_likes["likes"],2)["likes"],lt.getElement(por_likes["dislikes"],2)["dislikes"],lt.getElement(por_likes["tags"],2)["tags"]]
+    video3=[lt.getElement(por_likes["title"],3)["title"],lt.getElement(por_likes["cannel_title"],3)["cannel_title"],lt.getElement(por_likes["publish_time"],3)["publish_time"],lt.getElement(por_likes["views"],3)["views"],lt.getElement(por_likes["likes"],3)["likes"],lt.getElement(por_likes["dislikes"],3)["dislikes"],lt.getElement(por_likes["tags"],3)["tags"]]
+
+    return [video1,video2,video3]
+    
 def cmpVideosByCountry(video1, video2):
     """ 
      Devuelve verdadero (True) si los 'views' de video1 son mayores que los del video2 
@@ -350,4 +438,15 @@ def cmpVideosByCategory(video1, video2):
 def cmpVideosByName(video1, video2):
     if video1['title'].lower() > video2['title'].lower():
         return True
+    return False
+
+def cmpVideosByTag(video1,video2):
+    if video1["tag"].lower() > video2["tag"].lower():
+        return True
+    return False
+
+def cmpVideosByLikes(video1,video2):
+    if video1["likes"].lower()>video2["likes"].lower():
+        return True
+
     return False

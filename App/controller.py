@@ -78,4 +78,11 @@ def sortVideos(catalog, n, country, category):
 
 def getTrendingVideoByCountry(catalog, country):
     return model.getTrendingVideoByCountry(catalog, country)
+
+def getTrendingVideoByCategory(catalog, category):
+    return model.getTrendingVideoByCategory(catalog, category)
+
+def getTrendingVideoByLikes(catalog,country,tag):
+    return model.getTrendingVideoByLikes(catalog,country,tag)
+
 # Funciones de consulta sobre el catálogo
