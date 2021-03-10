@@ -188,7 +188,6 @@ def newCategory(id, name):
     category['id'] = id
     return category
 
-# Funciones de consulta
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
@@ -222,12 +221,6 @@ def cmpVideosByViews(video1, video2):
     return False
 
 # Funciones de ordenamiento
-
-def sortVideos1(catalog, size, tipo_ordenamiento):
-    sub_list = lt.subList(catalog['videos'], 0, size) 
-    #ub_list = sub_list.copy() 
-    sorted_list = mg.sort(catalog, cmpVideosByViews)
-    return  sorted_list
 
 def sortVideos(catalog, n, country, category):
 
@@ -270,13 +263,6 @@ def sortVideos(catalog, n, country, category):
 
     sub_list = lt.subList(por_vistas, 1, n)
 
-    #print("Numero final: " + str(lt.size(sub_list)))
-
-    #f = 1
-    #while f <= 9:
-    #for video in lt.iterator(sub_list):
-        #print  ( 'Video: ' + lt.getElement(por_vistas, f)['title'] + ' Views: ' + str(lt.getElement(por_vistas, f)['views']))
-        #f += 1
 
     return sub_list
 
