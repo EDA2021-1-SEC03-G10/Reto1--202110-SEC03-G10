@@ -248,10 +248,12 @@ def sortVideos(catalog, n, country, category):
 
     while country in lt.getElement(por_pais, index_fin)["country"] :
         index_fin += 1
+        if index_fin > lt.size(por_pais):
+            break
 
     sub_list = lt.subList(por_pais, index_inicio, index_fin-index_inicio)
     
-    por_categoria= qs.sort (sub_list, cmpVideosByCategory)
+    por_categoria= mg.sort (sub_list, cmpVideosByCategory)
     index_inicio = 1
 
     while lt.getElement(por_categoria, index_inicio)["category_id"] != id_category :
@@ -264,7 +266,7 @@ def sortVideos(catalog, n, country, category):
 
     sub_list = lt.subList(por_categoria, index_inicio, index_fin-index_inicio)
 
-    por_vistas = qs.sort(sub_list, cmpVideosByViews)
+    por_vistas = mg.sort(sub_list, cmpVideosByViews)
 
     sub_list = lt.subList(por_vistas, 1, n)
 
